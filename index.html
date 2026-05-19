@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>バーコード登録</title>
+  <title>register barcode</title>
   <script src="https://unpkg.com/@zxing/browser@latest"></script>
   <style>
     body { font-family: system-ui, sans-serif; padding: 16px; }
@@ -14,27 +14,27 @@
 </head>
 <body>
   <div class="box">
-    <h2>バーコード登録</h2>
+    <h2>register barcode</h2>
 
     <video id="video"></video>
 
-    <input id="barcode" placeholder="バーコード" />
-    <input id="number" placeholder="数字メモ（手入力）" />
+    <input id="barcode" placeholder="barcode" />
+    <input id="number" placeholder="memo" />
 
-    <button onclick="startScan()">カメラ開始</button>
-    <button onclick="sendData()">スプレッドシートに追加</button>
+    <button onclick="startScan()">start camera</button>
+    <button onclick="sendData()">add to SpreadSheet</button>
 
     <p id="status"></p>
   </div>
 
   <script>
-    const GAS_URL = "ここにApps ScriptのWebアプリURLを入れる";
+    const GAS_URL = "url";
 
     const codeReader = new ZXingBrowser.BrowserMultiFormatReader();
 
     async function startScan() {
       const status = document.getElementById("status");
-      status.textContent = "カメラ起動中...";
+      status.textContent = "start up camera";
 
       try {
         const videoInputDevices = await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
@@ -46,12 +46,12 @@
           (result, error) => {
             if (result) {
               document.getElementById("barcode").value = result.getText();
-              status.textContent = "読み取りました";
+              status.textContent = "read done";
             }
           }
         );
       } catch (e) {
-        status.textContent = "カメラ起動に失敗: " + e;
+        status.textContent = "camera error: " + e;
       }
     }
 
@@ -75,11 +75,11 @@
           body: JSON.stringify(data)
         });
 
-        status.textContent = "追加しました";
+        status.textContent = "number added";
         document.getElementById("barcode").value = "";
         document.getElementById("number").value = "";
       } catch (e) {
-        status.textContent = "送信失敗: " + e;
+        status.textContent = "send error:" + e;
       }
     }
   </script>
