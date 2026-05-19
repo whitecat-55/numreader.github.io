@@ -37,19 +37,23 @@
       status.textContent = "start up camera";
 
       try {
-        const videoInputDevices = await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
-        const deviceId = videoInputDevices[0].deviceId;
+	const videoInputDevices = await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
 
-        await codeReader.decodeFromVideoDevice(
-          deviceId,
-          "video",
-          (result, error) => {
-            if (result) {
-              document.getElementById("barcode").value = result.getText();
-              status.textContent = "read done";
-            }
-          }
-        );
+	const backCamera =
+	  videoInputDevices.find(device =>
+	    /back|rear|environment|背面|アウト/i.test(device.label)
+	  ) || videoInputDevices[videoInputDevices.length - 1];
+
+	await codeReader.decodeFromVideoDevice(
+	  backCamera.deviceId,
+	  "video",
+	  (result, error) => {
+	    if (result) {
+	      document.getElementById("barcode").value = result.getText();
+	      status.textContent = "done";
+	    }
+	  }
+	);
       } catch (e) {
         status.textContent = "camera error: " + e;
       }
