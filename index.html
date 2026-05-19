@@ -41,7 +41,7 @@
 
 	const backCamera =
 	  videoInputDevices.find(device =>
-	    /back|rear|environment|背面|アウト/i.test(device.label)
+	    /back|rear|environment/i.test(device.label)
 	  ) || videoInputDevices[videoInputDevices.length - 1];
 
 	await codeReader.decodeFromVideoDevice(
