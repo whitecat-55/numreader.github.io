@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>バーコード登録</title>
+  <script src="https://unpkg.com/@zxing/browser@latest"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 16px; }
+    video { width: 100%; max-width: 480px; border: 1px solid #ccc; }
+    input, button { font-size: 18px; padding: 10px; width: 100%; margin-top: 10px; }
+    .box { max-width: 480px; margin: auto; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>バーコード登録</h2>
+
+    <video id="video"></video>
+
+    <input id="barcode" placeholder="バーコード" />
+    <input id="number" placeholder="数字メモ（手入力）" />
+
+    <button onclick="startScan()">カメラ開始</button>
+    <button onclick="sendData()">スプレッドシートに追加</button>
+
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const GAS_URL = "ここにApps ScriptのWebアプリURLを入れる";
+
+    const codeReader = new ZXingBrowser.BrowserMultiFormatReader();
+
+    async function startScan() {
+      const status = document.getElementById("status");
+      status.textContent = "カメラ起動中...";
+
+      try {
+        const videoInputDevices = await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
+        const deviceId = videoInputDevices[0].deviceId;
+
+        await codeReader.decodeFromVideoDevice(
+          deviceId,
+          "video",
+          (result, error) => {
+            if (result) {
+              document.getElementById("barcode").value = result.getText();
+              status.textContent = "読み取りました";
+            }
+          }
+        );
+      } catch (e) {
+        status.textContent = "カメラ起動に失敗: " + e;
+      }
+    }
+
+    async function sendData() {
+      const status = document.getElementById("status");
+
+      const data = {
+        barcode: document.getElementById("barcode").value,
+        number: document.getElementById("number").value
+      };
+
+      status.textContent = "送信中...";
+
+      try {
+        await fetch(GAS_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        status.textContent = "追加しました";
+        document.getElementById("barcode").value = "";
+        document.getElementById("number").value = "";
+      } catch (e) {
+        status.textContent = "送信失敗: " + e;
+      }
+    }
+  </script>
+</body>
+</html>
